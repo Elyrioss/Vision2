@@ -161,6 +161,26 @@ for (startX, startY, endX, endY) in boxes:
 		textfr += translator.translate(text, dest = 'fr').text + " "
 		print(textfr)
 		cv2.imshow(str(i), rec)
+
+		crop_img = orig[startY-args["padding"]:endY+args["padding"], startX-args["padding"]:endX+args["padding"]]
+		data = np.reshape(crop_img, (-1,3))
+		data = np.float32(data)
+		criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.05)
+		flags = cv2.KMEANS_RANDOM_CENTERS
+		K=100
+		compactness,labels,centers = cv2.kmeans(data,K,None,criteria,30,flags)
+		R=0
+		G=0
+		B=0
+		for k in centers:
+			R = R+k[0]
+			G = G+k[1]
+			B = B+k[2]
+		c = (int(R/(K)),int(G/(K)),int(B/(K)))
+		if c[0]>200 and c[1]>200 and c[2]>200:
+			c=(255,255,255)
+		cv2.rectangle(orig,(startX - args["padding"], startY -args["padding"]), (endX + args["padding"], endY + args["padding"]),c,-1)
+		cv2.putText(orig,textfr, (startX - args["padding"], endY + args["padding"]-10), font, 0.5,fontColor,lineType)
 		cv2.rectangle(orig, (startX - args["padding"], startY -args["padding"]), (endX + args["padding"], endY + args["padding"]), (0, 255, 0), 2) 
 	
 	i = i+1

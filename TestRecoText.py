@@ -8,6 +8,11 @@ import argparse
 import time
 import cv2
 
+font                   = cv2.FONT_HERSHEY_SIMPLEX
+fontScale              = 1
+fontColor              = (255,255,255)
+lineType               = 1
+
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", type=str,
@@ -125,9 +130,37 @@ for (startX, startY, endX, endY) in boxes:
 	endX = int(endX * rW)
 	endY = int(endY * rH)
 
-	# draw the bounding box on the image
-	cv2.rectangle(orig, (startX, startY), (endX, endY), (0, 255, 0), 2)
+	# draw the bounding box on the image	
+
+	crop_img = orig[startY:endY, startX:endX]
+
+	data = np.reshape(crop_img, (-1,3))
+	data = np.float32(data)
+	criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.05)
+	flags = cv2.KMEANS_RANDOM_CENTERS
+	K=100
+	compactness,labels,centers = cv2.kmeans(data,K,None,criteria,30,flags)
+	print(len(centers))
+	print('Dominant color is: bgr({})'.format(centers[0].astype(np.int32)))
+	R=0
+	G=0
+	B=0
+	for k in centers:
+		R = R+k[0]
+		G = G+k[1]
+		B = B+k[2]
+	c = (int(R/(K)),int(G/(K)),int(B/(K)))
+	print((int(R/(K)),int(G/(K)),int(B/(K))))
+	if c[0]>200 and c[1]>200 and c[2]>200:
+		c=(255,255,255)
+	cv2.rectangle(orig,(startX, startY), (endX, endY),c,-1)
+	#cv2.rectangle(orig, (startX, startY), (endX,endY), (0, 255, 0), 2)
+	area = (endX-startX)
+	print(area)
+	cv2.putText(orig,'Hello World!', (startX, endY-10), font, 0.5,fontColor,lineType)
+
 
 # show the output image
 cv2.imshow("Text Detection", orig)
 cv2.waitKey(0)
+
