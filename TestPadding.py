@@ -1,6 +1,5 @@
 # USAGE
 # python TestRecoText.py --image images/11.png --east frozen_east_text_detection.pb
-
 from imutils.object_detection import non_max_suppression
 from googletrans import Translator
 import numpy as np
@@ -9,6 +8,11 @@ import time
 import pytesseract
 import cv2
 
+
+font                   = cv2.FONT_HERSHEY_SIMPLEX
+fontScale              = 1
+fontColor              = (0,0,0)
+lineType               = 1
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -180,8 +184,8 @@ for (startX, startY, endX, endY) in boxes:
 		if c[0]>200 and c[1]>200 and c[2]>200:
 			c=(255,255,255)
 		cv2.rectangle(orig,(startX - args["padding"], startY -args["padding"]), (endX + args["padding"], endY + args["padding"]),c,-1)
-		cv2.putText(orig,textfr, (startX - args["padding"], endY + args["padding"]-10), font, 0.5,fontColor,lineType)
-		cv2.rectangle(orig, (startX - args["padding"], startY -args["padding"]), (endX + args["padding"], endY + args["padding"]), (0, 255, 0), 2) 
+		cv2.rectangle(orig, (startX - args["padding"], startY -args["padding"]), (endX + args["padding"], endY + args["padding"]), (0, 255, 0), 2)
+		cv2.putText(orig,textfr, (startX - args["padding"], endY + args["padding"]-10), font, 0.5,fontColor,lineType) 
 	
 	i = i+1
 	
